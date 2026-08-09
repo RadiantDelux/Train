@@ -72,7 +72,7 @@ The primary lifecycle is now structurally closed:
 The contiguous `CGame` region also identifies
 `CGame::ReInitGameObjectVariables` at `0x002FB388`.
 
-The symbol table now contains 65 tracked names and includes multiple verified
+The symbol table now contains 109 tracked names and includes multiple verified
 init/update pairs recovered by correlating the initialisation and frame-update
 chains. See `docs/MAIN_LOOP.md` for the current control-flow map.
 
@@ -82,5 +82,11 @@ Boundary correction: `CClock::Initialise` starts at `0x001F8760`.
 
 - Added `src/CGameProcess.cpp` for the main non-paused simulation update block (`0x002FBC50..0x002FBEC0`).
 - Added `docs/CGAME_PROCESS.md` and generated `docs/CGAME_CALLMAP.md`.
-- Symbol table now tracks 77 recovered/provisional symbols.
+- Symbol table now tracks 109 recovered/provisional symbols.
 - Newly recovered families include `CParticle` (Init/Update/Render verified) and provisional WaterCannons/UserDisplay/Pickups/GameLogic Init/Update pairs.
+
+## 2026-08-09 core-frame recovery pass
+
+The PS2 `CGame::Process` map now has high-confidence identities for `CWeather`, `CWorld`, `CStreaming`, `CPad`, `CScriptPaths`, the per-frame sprite/font setup, record-data stubs, and `CCarCtrl` init/reinit.  The simulation lift now preserves the repeated `FrontEndMenuManager+0x47D` load-transition guards instead of flattening the frame into an unconditional call list.
+
+The final `MEMID_CARS` block is partially reconstructed as random-car generation, roadblock generation, distant-car removal and a pool-pressure cleanup helper.  Ambiguous helpers remain provisional/address-labelled.
