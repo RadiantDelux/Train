@@ -1,92 +1,64 @@
 # LCS PS2 semantic decompilation status
 
-## Binary
+## Target
 
 - ELF32 little-endian MIPS/R5900 (Emotion Engine)
 - Entry point: `0x001C6A60`
 - `.text`: `0x00100000..0x003865E4`
 - `.vutext`: `0x003865F0..0x003878C0`
-- `$gp` established by CRT as `0x003D6EF0`
+- `$gp = 0x003D6EF0`
 - stripped, statically linked
 - SHA-256: `65bc2ec3d8a1b9f8482fb7e69427f2539e7e7b49d9dd262bf31aa8aa54ec53b2`
 
-## Automated inventory
+The PS2 ELF is authoritative. Public reverse-engineering trees are used only to test naming hypotheses after a pattern is independently observed in this binary.
 
-Current bootstrap scan finds:
+## Current coverage
 
-- 8,767 printable diagnostic/data strings
-- 34,586 direct `jal` sites into `.text`
-- 5,140 unique direct-call targets / function seeds
-- 1,718 simple absolute string xrefs
+The startup/lifecycle path is structurally identified:
 
-The function count is an upper-bound seed set, not a final function count. SDK/runtime code and false positives still need classification.
+`_start -> main (0x001F3628) -> Game_Bootstrap -> TheGame (0x001F5FA8) -> CGame::Initialise (0x002FAE40) -> CGame::Process (0x002FBAF0)`
 
-## Verified startup path
+Restart handling is also mapped through `CGame::ShutDownForRestart`, `CGame::ReInitGameObjectVariables`, and `CGame::InitialiseWhenRestarting`.
 
-`_start (0x001C6A60)` clears BSS, establishes `$gp`, performs PS2 thread/heap setup, calls runtime initialization and finally invokes `main` at `0x001F3628`.
+`analysis/symbols.csv` contains 118 tracked function identities. `analysis/globals.csv` contains verified state globals. Longer evidence remains in the notes and assembly dumps rather than bloating the canonical CSVs.
 
-`main` calls:
+## CGame::Process
 
-1. `0x0035B420` -- probable global constructor runner
-2. `0x001F30F8` -- unknown startup hook; previous command-line-parser hypothesis rejected because the routine does not consume `argc/argv`
-3. `0x001F3518` -- game bootstrap/orchestration
+`src/CGameProcess.cpp` now lifts the complete `0x002FBAF0..0x002FBEDC` routine, including:
 
-`0x001F3518` registers three callbacks, performs platform/runtime initialization, invokes an event-style dispatcher at `0x00264930`, then enters the game initialization routine at `0x001F5FA8`.
+- PS2 load-transition path and `CStreaming::LoadScene`
+- pad and volatile/custom-memory maintenance
+- `CCutsceneMgr::Update`
+- frontend processing gates
+- `CStreaming::Update`
+- user/code pause gates
+- the non-paused simulation chain
+- final `MEMID_CARS` traffic maintenance
 
-`0x001F5FA8` has high-confidence game-init evidence: it references `Into The Game!!!`, `start game init`, `DATA\\GTA_VC.DAT`, `game init DONE!`, and `Starting Game`. It directly invokes `CTimer_Initialise` at `0x002B4C00`.
+Verified during the latest pass:
 
-## High-confidence recovered symbols
+- `CTheScripts::StartTestScript = 0x0010A628`
+- `CStreaming::LoadScene = 0x0018FA18`
+- `CGarages::Init/Update = 0x00194B58 / 0x00194CA0`
+- `CTimeCycle::Update = 0x001B7F30`
+- `CCutsceneMgr::Update = 0x0022DAC0`
+- `CSpecialFX::Init/Update = 0x00245E50 / 0x00246438`
+- `CMenuManager::Process = 0x0033F3A8`
+- `CCullZones::Update = 0x003523B0`
 
-See `analysis/symbols.csv`. Exact diagnostic-string symbols already recovered include:
+A previous provisional `CSpecialFX` assignment at `0x00146FC0/0x00146FF0` was rejected after body inspection. That eight-slot manager is intentionally unnamed again.
 
-- `CTheScripts::Init` `0x00109BC8`
-- `CFileMgr::InitCd` `0x00146F48`
-- `cWorldStream::Stream` `0x00203C90`
-- `cUmdStream::AcquireLock` `0x002040D8`
-- `cUmdStream::ReleaseLock` `0x00204118`
-- `cWorldStream::StreamingCallback` `0x00204190`
-- `CCarGenerator::DoInternalProcessing` `0x0031FC10`
-- `CText::LoadMissionText` `0x00332968`
+## Verified frame globals
 
-Strong behavioral identifications include `CTimer_Initialise`, `CClock_Initialise`, `CPopulation_Initialise`, `AudioManager_Initialise`, and the primary game init routine.
+- `0x003D5AC0` -> `CCutsceneMgr::ms_running`
+- `0x003D5AC4` -> `CCutsceneMgr::ms_cutsceneProcessing`
+- `0x003E9C68` -> `CTimer::m_CodePause`
+- `0x003E9CB4` -> `CTimer::m_UserPause`
 
-## Fidelity rule
+The TimeCycle argument slot used by `CGame::Process` is `$gp - 0x2408 = 0x003D4AE8`; this corrects an earlier scaffold offset that was `+0x10` too high.
 
-Names are assigned in three levels:
+## Fidelity policy
 
-- **verified**: exact string, ABI, or structural proof
-- **provisional**: strong behavioral evidence but no exact symbol
-- **unknown**: retained as `Func_<address>`
+Symbols are `verified`, `provisional`, or left address-only. A name is not promoted merely because it occupies the same position in another port. Corrections are expected and are recorded explicitly when binary evidence rejects a prior hypothesis.
 
-A provisional name is never silently promoted to verified. This is important for a future portable source tree: readable code is useful only if it remains traceable to the original executable.
-
-## Main loop pass
-
-The primary lifecycle is now structurally closed:
-
-`TheGame (0x001F5FA8)` -> `CGame::Initialise (0x002FAE40)` -> repeated
-`TheGame_Frame (0x001F5BC0)` / `CGame::Process (0x002FBAF0)` ->
-`CGame::ShutDownForRestart (0x002FB600)` -> optional
-`CGame::InitialiseWhenRestarting (0x002FB700)`.
-
-The contiguous `CGame` region also identifies
-`CGame::ReInitGameObjectVariables` at `0x002FB388`.
-
-The symbol table now contains 109 tracked names and includes multiple verified
-init/update pairs recovered by correlating the initialisation and frame-update
-chains. See `docs/MAIN_LOOP.md` for the current control-flow map.
-
-Boundary correction: `CClock::Initialise` starts at `0x001F8760`.
-
-## CGame::Process semantic lift
-
-- Added `src/CGameProcess.cpp` for the main non-paused simulation update block (`0x002FBC50..0x002FBEC0`).
-- Added `docs/CGAME_PROCESS.md` and generated `docs/CGAME_CALLMAP.md`.
-- Symbol table now tracks 109 recovered/provisional symbols.
-- Newly recovered families include `CParticle` (Init/Update/Render verified) and provisional WaterCannons/UserDisplay/Pickups/GameLogic Init/Update pairs.
-
-## 2026-08-09 core-frame recovery pass
-
-The PS2 `CGame::Process` map now has high-confidence identities for `CWeather`, `CWorld`, `CStreaming`, `CPad`, `CScriptPaths`, the per-frame sprite/font setup, record-data stubs, and `CCarCtrl` init/reinit.  The simulation lift now preserves the repeated `FrontEndMenuManager+0x47D` load-transition guards instead of flattening the frame into an unconditional call list.
-
-The final `MEMID_CARS` block is partially reconstructed as random-car generation, roadblock generation, distant-car removal and a pool-pressure cleanup helper.  Ambiguous helpers remain provisional/address-labelled.
+The semantic C++ currently passes `g++ -std=c++17 -fsyntax-only src/*.cpp`.

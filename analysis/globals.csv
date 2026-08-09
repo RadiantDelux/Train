@@ -1,0 +1,5 @@
+address,name,confidence,status
+0x003D5AC0,CCutsceneMgr::ms_running,0.99,verified
+0x003D5AC4,CCutsceneMgr::ms_cutsceneProcessing,0.99,verified
+0x003E9C68,CTimer::m_CodePause,0.99,verified
+0x003E9CB4,CTimer::m_UserPause,0.99,verified
