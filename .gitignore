@@ -1,0 +1,20 @@
+# Generated/raw analysis indexes
+analysis/calls.csv
+analysis/strings.csv
+analysis/string_xrefs.csv
+analysis/function_seeds.csv
+analysis/name_candidates.csv
+
+# Local binary inputs / dumps
+*.elf
+*.iso
+*.bin
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor/OS
+.DS_Store
+.vscode/
+.idea/

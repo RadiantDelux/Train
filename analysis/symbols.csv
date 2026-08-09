@@ -1,0 +1,78 @@
+address,name,confidence,status,evidence
+0x00109BC8,CTheScripts::Init,0.99,verified,"string_xref,  exact diagnostic string"
+0x0010A288,CTheScripts::Process,0.99,verified,Per-frame script call paired with CTheScripts::Init and bracketed by script MEMID
+0x0011E1C0,CGlass::Init,0.98,verified,Initialisation position plus paired per-frame update
+0x0011E260,CGlass::Update,0.98,verified,Per-frame counterpart of glass initializer
+0x00146F48,CFileMgr::InitCd,0.99,verified,"string_xref,  exact diagnostic string"
+0x00146FC0,CSpecialFX::Init,0.97,provisional,CGame init position and adjacent per-frame update pair
+0x00146FF0,CSpecialFX::Update,0.97,provisional,Per-frame counterpart of probable CSpecialFX initializer
+0x00151728,RSL3D_VuCodePkt::ReturnFunctionAddress,0.99,verified,"string_xref,  exact diagnostic string"
+0x0016AFD0,CClouds::Init,1.00,verified,Initializer references cloud textures
+0x0016B080,CClouds::Update,0.99,verified,Per-frame counterpart of cloud initializer
+0x001C6A60,_start,1.00,verified,ELF entrypoint and PS2 CRT startup sequence
+0x001C6CB0,CPickups::Init,0.97,provisional,Called in initialisation/reinit and paired with 0x1C6D30 in per-frame lifecycle; initializes 336 fixed-size entries
+0x001C6D30,CPickups::Update,0.97,provisional,Per-frame counterpart to 0x1C6CB0; lifecycle position matches pickups update
+0x001CC6B8,CParticleMgr_Initialise,0.95,provisional,prints Initialising CParticleMgr then CParticle
+0x001CC7B8,CParticle::Initialise,0.99,verified,Initialisation call is in particle MEMID block; calls CParticleMgr initialise and loads particle resources
+0x001CE1B0,CParticle::Update,0.99,verified,Per-frame call immediately after CEventList::Update; paired with particle initializer and particle data accesses
+0x001CF2A0,CParticle::Render,0.98,provisional,Render-effects call; same particle subsystem region as Initialise/Update and extensive particle render-state work
+0x001F1AA0,CRubbish::Init,0.99,verified,Initializer references leaf/newspaper debris assets; paired update
+0x001F1C60,CRubbish::Update,0.99,verified,Per-frame counterpart of rubbish initializer
+0x001F3518,Game_Bootstrap,0.80,provisional,main calls it; registers callbacks and enters startup pipeline
+0x001F3628,main,1.00,verified,called by CRT with argc/argv
+0x001F3670,Game_PlatformInitialise,0.65,provisional,early bootstrap stage containing CFileMgr::InitCd and other low-level init
+0x001F4280,DoFade,0.96,provisional,Post-menu fade state/alpha calculations in exact frame-loop position
+0x001F4C88,DoRWStuffEndOfFrame,0.96,provisional,Frame finalization path with camera/raster handling; called after post-fade rendering
+0x001F5BC0,TheGame_Frame,0.97,provisional,Inner loop body called repeatedly by TheGame; owns CGame::Process and render pipeline
+0x001F5FA8,TheGame,1.00,verified,"Exact Into TheGame marker; owns CGame::Initialise, restart loop and audio termination"
+0x001F6138,RenderScene,0.97,provisional,First world-render helper in frame path; call cluster matches scene rendering
+0x001F6198,RenderDebugShit,0.95,provisional,Empty production-build render helper adjacent to RenderScene/RenderEffects
+0x001F61C8,RenderEffects,0.99,verified,Render call cluster matches glass/water/special FX/shadows/skidmarks/antennas/rubbish/coronas/particles
+0x001F6338,Render2dStuff,0.99,verified,Begins with RenderWare 2D render-state setup and follows motion blur in frame path
+0x001F65C8,RenderMenus,0.96,provisional,Checks frontend menu-active byte and enters frontend draw code
+0x001F66D0,Render2dStuffAfterFade,0.96,provisional,Post-fade HUD/font call cluster in exact frame-loop position
+0x001F8760,CClock::Initialise,1.00,verified,Function boundary at 0x1F8760; exact CClock diagnostics and 1000 argument from CGame::Initialise
+0x001F88C0,CClock::Update,0.99,verified,Per-frame partner of CClock::Initialise in CGame::Process
+0x001FCEE0,CUserDisplay::Init,0.95,provisional,Paired wrapper with 0x1FCF28; called in both initialisation and restart reinit; Process counterpart sits after water cannons in frame order
+0x001FCF28,CUserDisplay::Process,0.95,provisional,Paired wrapper with 0x1FCEE0 and exact per-frame lifecycle position after water cannons
+0x00203C90,cWorldStream::Stream,0.99,verified,"string_xref,  exact diagnostic string"
+0x002040D8,cUmdStream::AcquireLock,0.99,verified,"string_xref,  exact diagnostic string"
+0x00204118,cUmdStream::ReleaseLock,0.99,verified,"string_xref,  exact diagnostic string"
+0x00204190,cWorldStream::StreamingCallback,0.99,verified,"string_xref,  exact diagnostic string"
+0x00205618,CGameLogic::InitAtStartOfGame,0.94,provisional,First game-object init call after loading screen; paired with 0x205640 late in CGame::Process
+0x00205640,CGameLogic::Update,0.94,provisional,Late per-frame call paired with 0x205618 initialiser
+0x0022B4D0,CEventList::Initialise,1.00,verified,Exact Initialising CEventList diagnostic
+0x0022B560,CEventList::Update,0.99,verified,Per-frame counterpart of CEventList initializer
+0x00237F38,AudioManager_Initialise,0.95,provisional,prints Initialising AudioManager
+0x0023AEC8,CDarkel::Init,0.98,verified,Initialisation position plus adjacent per-frame update counterpart
+0x0023AED0,CDarkel::Update,0.98,verified,Per-frame counterpart of CDarkel::Init
+0x00256048,CHeli::InitHelis,0.98,verified,Initialisation position plus paired per-frame update
+0x002560E8,CHeli::UpdateHelis,0.98,verified,Per-frame counterpart of heli initializer
+0x0025A9E0,CAntennas::Init,0.98,verified,Initialisation position plus paired per-frame update
+0x0025AA18,CAntennas::Update,0.98,verified,Per-frame counterpart of antenna initializer
+0x00261BC0,CPlane::InitPlanes,1.00,verified,Exact init planes diagnostic
+0x00261D10,CPlane::UpdatePlanes,0.99,verified,Per-frame counterpart immediately after CTrain::UpdateTrains
+0x00264900,CommandLine_vms,0.99,verified,compares parameter against -vms and sets a global
+0x00264930,EventDispatcher,0.75,provisional,event-style switch; includes command-line handler path
+0x002A25D0,CWeapon::InitialiseWeapons,0.99,verified,CGame init position directly before traffic-light stage; paired update
+0x002A2618,CWeapon::UpdateWeapons,0.99,verified,Per-frame counterpart of weapon initializer
+0x002B4C00,CTimer::Initialise,1.00,verified,Timer init diagnostic plus TheGame/CGame lifecycle placement
+0x002B4CF8,CTimer::Update,0.99,verified,Repeated timer call at frame boundaries and CGame restart lifecycle
+0x002B5098,CTimer::Stop,0.99,verified,Called immediately after CGame::ShutDownForRestart
+0x002CDFF8,CWaterCannons::Init,0.97,provisional,CGame init placement immediately after SpecialFX; initializes three 592-byte instances; paired Update/Render family
+0x002CE178,CWaterCannons::Update,0.97,provisional,Per-frame position after moving-things/clouds cluster; iterates same three 592-byte instances as Init/Render
+0x002CE1E8,CWaterCannons::Render,0.97,provisional,Render-effects family member; iterates same three 592-byte instances as Init/Update
+0x002EC1A0,CPopulation::Initialise,1.00,verified,Exact CPopulation diagnostics and CGame init placement
+0x002EC290,CPopulation::Update,0.99,verified,Per-frame counterpart of CPopulation initializer
+0x002FAE40,CGame::Initialise,1.00,verified,Called by TheGame with DATA\GTA_VC.DAT; exact staged loading strings and known subsystem init sequence
+0x002FB388,CGame::ReInitGameObjectVariables,0.99,verified,Called from InitialiseWhenRestarting; repeats subsystem reinit and emits multiplayer reinit diagnostics
+0x002FB600,CGame::ShutDownForRestart,0.99,verified,Called after game frame loop and from restart-load failure path; shutdown sequence
+0x002FB700,CGame::InitialiseWhenRestarting,1.00,verified,"Exact Initialise when restarting diagnostic; timer init, reinit call and save-load path"
+0x002FBAF0,CGame::Process,1.00,verified,Called once per game frame inside game-process memory block; contains canonical subsystem update chain
+0x0031FC10,CCarGenerator::DoInternalProcessing,0.99,verified,"string_xref,  exact diagnostic string"
+0x00322848,CTrain::InitTrains,0.99,verified,Initialisation call in CGame::Initialise; function contains train data
+0x00322DC8,CTrain::UpdateTrains,0.99,verified,Per-frame counterpart immediately aligned with train init sequence
+0x00332968,CText::LoadMissionText,0.99,verified,"string_xref,  exact diagnostic string"
+0x0034F318,CSkidmarks::Init,0.99,verified,Initialisation call references particleskid asset
+0x0034F3E0,CSkidmarks::Update,0.99,verified,Per-frame counterpart of skidmark initializer
+0x0035B420,__main_or_global_ctors,0.90,provisional,first call from main; CRT-style placement and behavior
